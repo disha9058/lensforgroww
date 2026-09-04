@@ -8,13 +8,13 @@ import { stocksApi } from "@/lib/api/stocks";
 export const Route = createFileRoute("/")({
   head: () => ({
     meta: [
-      { title: "Watchlist — Pulse Stock Tracker" },
+      { title: "Lens — Know what changed." },
       {
         name: "description",
         content:
-          "Track your stocks in a clean dark watchlist with live prices, day change and sparklines.",
+          "Know what changed. Track your stocks in a clean dark watchlist with live prices, day change and sparklines.",
       },
-      { property: "og:title", content: "Watchlist — Pulse Stock Tracker" },
+      { property: "og:title", content: "Lens — Know what changed." },
       {
         property: "og:description",
         content: "Track your stocks with live prices, day change and sparklines.",
@@ -46,7 +46,7 @@ function WatchlistPage() {
           <span className="flex h-14 w-14 items-center justify-center rounded-2xl bg-secondary">
             <Bookmark className="h-6 w-6 text-primary" />
           </span>
-          <p className="mt-5 text-base font-medium">Add stocks to build your Pulse</p>
+          <p className="mt-5 text-base font-medium">Add stocks to build your Lens</p>
           <p className="mt-1 text-sm text-muted-foreground">
             We&apos;ll watch them and tell you what actually changed.
           </p>

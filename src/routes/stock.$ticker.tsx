@@ -11,12 +11,12 @@ import { cn } from "@/lib/utils";
 export const Route = createFileRoute("/stock/$ticker")({
   head: ({ params }) => ({
     meta: [
-      { title: `${params.ticker} — Price & detected events | Pulse` },
+      { title: `${params.ticker} — Price & detected events | Lens` },
       {
         name: "description",
-        content: `Price history and the chronological log of detected events for ${params.ticker} on Pulse.`,
+        content: `Price history and the chronological log of detected events for ${params.ticker} on Lens.`,
       },
-      { property: "og:title", content: `${params.ticker} — Price & detected events | Pulse` },
+      { property: "og:title", content: `${params.ticker} — Price & detected events | Lens` },
       {
         property: "og:description",
         content: `Price history and detected events for ${params.ticker}.`,

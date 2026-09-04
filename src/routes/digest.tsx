@@ -8,13 +8,13 @@ import { stocksApi } from "@/lib/api/stocks";
 export const Route = createFileRoute("/digest")({
   head: () => ({
     meta: [
-      { title: "Digest — What moved since you checked | Pulse" },
+      { title: "Digest — What moved since you checked | Lens" },
       {
         name: "description",
         content:
           "A significance-sorted feed of what changed in your watchlist since you last checked, in plain English.",
       },
-      { property: "og:title", content: "Digest — What moved since you checked | Pulse" },
+      { property: "og:title", content: "Digest — What moved since you checked | Lens" },
       {
         property: "og:description",
         content: "A significance-sorted feed of what changed in your watchlist.",

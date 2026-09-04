@@ -7,15 +7,15 @@ import { stocksApi } from "@/lib/api/stocks";
 export const Route = createFileRoute("/explore")({
   head: () => ({
     meta: [
-      { title: "Explore Stocks — Pulse" },
+      { title: "Explore Stocks — Lens" },
       {
         name: "description",
-        content: "Browse stocks and bookmark them to your Pulse watchlist.",
+        content: "Browse stocks and bookmark them to your Lens watchlist.",
       },
-      { property: "og:title", content: "Explore Stocks — Pulse" },
+      { property: "og:title", content: "Explore Stocks — Lens" },
       {
         property: "og:description",
-        content: "Browse stocks and bookmark them to your Pulse watchlist.",
+        content: "Browse stocks and bookmark them to your Lens watchlist.",
       },
     ],
   }),

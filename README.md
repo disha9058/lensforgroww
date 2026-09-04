@@ -1,6 +1,6 @@
-# Pulse Stock Watch
+# Lens
 
-Build "Pulse" — a dark-themed stock watchlist app inspired by Groww's design language.
+Build "Lens" — a dark-themed stock watchlist app. Know what changed.
 
 VISUAL STYLE
 
@@ -18,7 +18,7 @@ VISUAL STYLE
 
 LAYOUT
 
-Top bar: app logo + "Pulse" wordmark (left), search icon + avatar circle (right)
+Top bar: app logo + "Lens" wordmark (left), search icon + avatar circle (right)
 
 Tab row below top bar, underline-active style: "Watchlist" | "Digest" | "Explore"
 
@@ -28,7 +28,7 @@ List of stock rows: ticker + company name (left), current price in bold large ty
 
 Each row has a small badge if it has unread changes, e.g. "⚡ 2" in a rounded pill, blue.
 
-Empty state: centered icon + "Add stocks to build your Pulse" + button.
+Empty state: centered icon + "Add stocks to build your Lens" + button.
 
 SCREEN 2 — Digest ("Since you checked")
 

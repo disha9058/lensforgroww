@@ -77,15 +77,15 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
     meta: [
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1" },
-      { title: "Pulse — Stock Watchlist" },
+      { title: "Lens — Know what changed." },
       {
         name: "description",
-        content: "A calm, dark stock watchlist that tells you what actually changed.",
+        content: "Know what changed. A calm, dark stock watchlist that tells you what actually moved.",
       },
-      { property: "og:title", content: "Pulse — Stock Watchlist" },
+      { property: "og:title", content: "Lens — Know what changed." },
       {
         property: "og:description",
-        content: "A calm, dark stock watchlist that tells you what actually changed.",
+        content: "Know what changed. A calm, dark stock watchlist that tells you what actually moved.",
       },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },

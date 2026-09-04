@@ -26,7 +26,7 @@ export function AppShell({ children }: { children: ReactNode }) {
                 />
               </svg>
             </span>
-            <span className="text-[17px] font-semibold tracking-tight">Pulse</span>
+            <span className="text-[17px] font-semibold tracking-tight">Lens</span>
           </Link>
           <div className="flex items-center gap-3">
             <button
