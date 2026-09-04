@@ -1,4 +1,4 @@
-import type { Stock } from "./types";
+import type { Stock, StockStats } from "./types";
 
 const now = Date.now();
 const ago = (mins: number) => new Date(now - mins * 60_000).toISOString();
@@ -16,7 +16,9 @@ function series(start: number, n: number, drift: number, seed: number): number[]
   return out;
 }
 
-export const MOCK_STOCKS: Stock[] = [
+type BaseStock = Omit<Stock, "weekChangePct" | "monthChangePct" | "category" | "stats">;
+
+const BASE_STOCKS: BaseStock[] = [
   {
     ticker: "NVDA",
     name: "NVIDIA Corporation",
@@ -164,5 +166,44 @@ export const MOCK_STOCKS: Stock[] = [
     ],
   },
 ];
+
+const CATEGORIES = ["Large Cap", "Mid Cap", "High Volatility", "Blue Chip", "Growth", "Momentum"];
+
+function hash(str: string) {
+  let h = 0;
+  for (let i = 0; i < str.length; i++) h = (h * 31 + str.charCodeAt(i)) >>> 0;
+  return h;
+}
+
+function fmtVolume(n: number) {
+  if (n >= 1_000_000_000) return `${(n / 1_000_000_000).toFixed(2)}B`;
+  if (n >= 1_000_000) return `${(n / 1_000_000).toFixed(2)}M`;
+  return `${(n / 1000).toFixed(1)}K`;
+}
+
+function derive(s: BaseStock): Stock {
+  const h = hash(s.ticker);
+  const r1 = ((h % 1000) / 1000 - 0.5) * 2;
+  const r2 = (((h >> 7) % 1000) / 1000 - 0.5) * 2;
+  const prev = s.price / (1 + s.dayChangePct / 100);
+  const stats: StockStats = {
+    open: Number((prev * (1 + r1 * 0.004)).toFixed(2)),
+    high: Number((Math.max(s.price, prev) * 1.012).toFixed(2)),
+    low: Number((Math.min(s.price, prev) * 0.988).toFixed(2)),
+    volume: fmtVolume(4_000_000 + (h % 90) * 1_400_000),
+    marketCap: `${(40 + (h % 260)).toFixed(1)}B`,
+    week52Low: Number((s.price * (0.58 + Math.abs(r2) * 0.15)).toFixed(2)),
+    week52High: Number((s.price * (1.08 + Math.abs(r1) * 0.28)).toFixed(2)),
+  };
+  return {
+    ...s,
+    category: `${CATEGORIES[h % CATEGORIES.length]} \u00b7 ${s.dayChangePct >= 0 ? "Uptrend" : "Downtrend"}`,
+    weekChangePct: Number((s.dayChangePct * 1.7 + r1 * 2.4).toFixed(2)),
+    monthChangePct: Number((s.dayChangePct * 2.6 + r2 * 6.5).toFixed(2)),
+    stats,
+  };
+}
+
+export const MOCK_STOCKS: Stock[] = BASE_STOCKS.map(derive);
 
 export const LAST_CHECKED = new Date(now - 6 * 60 * 60_000).toISOString();
