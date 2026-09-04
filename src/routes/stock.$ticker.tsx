@@ -95,6 +95,7 @@ function StockDetail() {
               stroke={up ? "var(--gain)" : "var(--loss)"}
               strokeWidth={2}
               dot={false}
+              isAnimationActive={false}
             />
           </LineChart>
         </ResponsiveContainer>
