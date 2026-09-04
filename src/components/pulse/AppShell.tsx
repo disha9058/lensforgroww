@@ -49,7 +49,8 @@ export function AppShell({ children }: { children: ReactNode }) {
               to={t.to}
               activeOptions={{ exact: t.to === "/" }}
               className="relative -mb-px border-b-2 border-transparent py-3 text-sm font-medium text-muted-foreground transition-colors hover:text-foreground"
-              activeProps={{ className: "border-primary text-foreground" }}
+              activeProps={{ className: "!border-primary !text-foreground" }}
+
             >
               {t.label}
             </Link>

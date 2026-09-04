@@ -29,23 +29,24 @@ export const stocksApi = {
       return request<PricePoint[]>(`/stocks/${ticker}/history?range=${range}`);
     const stock = store.find((s) => s.ticker === ticker);
     const points = range === "7d" ? 7 : range === "1m" ? 30 : 90;
-    const base = stock?.sparklineData ?? [100];
-    const out: PricePoint[] = [];
-    let v = (stock?.price ?? 100) * 0.9;
-    for (let i = 0; i < points; i++) {
+    const end = stock?.price ?? 100;
+    // Walk backwards from the current price so the series always ends at it.
+    const values: number[] = [end];
+    let v = end;
+    for (let i = 1; i < points; i++) {
       const seed = Math.sin(i * 12.9898 + points) * 43758.5453;
       const r = seed - Math.floor(seed) - 0.5;
-      v = v * (1 + 0.0022 + r * 0.02);
-      const d = new Date();
-      d.setDate(d.getDate() - (points - i));
-      out.push({
-        t: d.toISOString().slice(0, 10),
-        price: Number(v.toFixed(2)),
-      });
+      v = v / (1 + 0.0018 + r * 0.014);
+      values.unshift(Number(v.toFixed(2)));
     }
-    if (out.length) out[out.length - 1]!.price = stock?.price ?? base[base.length - 1]!;
+    const out: PricePoint[] = values.map((price, i) => {
+      const d = new Date();
+      d.setDate(d.getDate() - (points - 1 - i));
+      return { t: d.toISOString().slice(0, 10), price };
+    });
     return delay(out);
   },
+
 
   async getDigest(): Promise<{ lastChecked: string; entries: DigestEntry[] }> {
     if (!USE_MOCK)
