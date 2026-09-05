@@ -15,11 +15,18 @@ interface DigestRow {
   zscore: number;
 }
 
-interface SearchHit {
+export interface SearchHit {
   ticker: string;
   name: string;
   exchange: string;
   type: string;
+}
+
+/** Live ticker/company search backed by the FastAPI /search endpoint. */
+export async function searchStocks(query: string): Promise<SearchHit[]> {
+  const q = query.trim();
+  if (q.length < 2) return [];
+  return request<SearchHit[]>(`/search?q=${encodeURIComponent(q)}`);
 }
 
 const EMPTY_STATS: StockStats = {
