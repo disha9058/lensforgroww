@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { useNavigate } from "@tanstack/react-router";
-import { Search, X } from "lucide-react";
-import { searchStocks, type SearchHit } from "@/lib/api/stocks";
+import { Search, X, Plus, Check } from "lucide-react";
+import { searchStocks, stocksApi, type SearchHit } from "@/lib/api/stocks";
 
 type Status = "idle" | "loading" | "done" | "error";
 
@@ -11,6 +11,8 @@ export function SearchOverlay({ onClose }: { onClose: () => void }) {
   const [query, setQuery] = useState("");
   const [results, setResults] = useState<SearchHit[]>([]);
   const [status, setStatus] = useState<Status>("idle");
+  const [addingTicker, setAddingTicker] = useState<string | null>(null);
+  const [addedTickers, setAddedTickers] = useState<Set<string>>(new Set());
 
   useEffect(() => {
     inputRef.current?.focus();
@@ -55,6 +57,19 @@ export function SearchOverlay({ onClose }: { onClose: () => void }) {
   function openTicker(ticker: string) {
     onClose();
     void navigate({ to: "/stock/$ticker", params: { ticker } });
+  }
+
+  async function handleAddToWatchlist(e: React.MouseEvent, ticker: string) {
+    e.stopPropagation(); // don't trigger the row's navigate-to-detail click
+    setAddingTicker(ticker);
+    try {
+      await stocksApi.toggleWatch(ticker);
+      setAddedTickers((prev) => new Set(prev).add(ticker.toUpperCase()));
+    } catch (err) {
+      console.error("Failed to add to watchlist:", err);
+    } finally {
+      setAddingTicker(null);
+    }
   }
 
   return (
@@ -104,27 +119,44 @@ export function SearchOverlay({ onClose }: { onClose: () => void }) {
 
           {status === "done" && results.length === 0 && (
             <p className="py-10 text-center text-[13px] text-muted-foreground">
-              No results found for “{query.trim()}”
+              No results found for "{query.trim()}"
             </p>
           )}
 
           {status === "done" &&
-            results.map((hit) => (
-              <button
-                key={`${hit.ticker}-${hit.exchange}`}
-                type="button"
-                onClick={() => openTicker(hit.ticker)}
-                className="flex w-full items-center gap-4 border-b border-border py-4 text-left transition-colors hover:bg-secondary/40"
-              >
-                <div className="min-w-0 flex-1">
-                  <div className="text-[15px] font-semibold tracking-tight">{hit.ticker}</div>
-                  <p className="mt-0.5 truncate text-[13px] text-muted-foreground">{hit.name}</p>
+            results.map((hit) => {
+              const upper = hit.ticker.toUpperCase();
+              const isAdded = addedTickers.has(upper);
+              const isAdding = addingTicker === hit.ticker;
+              return (
+                <div
+                  key={`${hit.ticker}-${hit.exchange}`}
+                  onClick={() => openTicker(hit.ticker)}
+                  className="flex w-full cursor-pointer items-center gap-4 border-b border-border py-4 text-left transition-colors hover:bg-secondary/40"
+                >
+                  <div className="min-w-0 flex-1">
+                    <div className="text-[15px] font-semibold tracking-tight">{hit.ticker}</div>
+                    <p className="mt-0.5 truncate text-[13px] text-muted-foreground">{hit.name}</p>
+                  </div>
+                  <span className="text-[11px] font-medium uppercase text-muted-foreground">
+                    {hit.exchange}
+                  </span>
+                  <button
+                    type="button"
+                    onClick={(e) => handleAddToWatchlist(e, hit.ticker)}
+                    disabled={isAdding || isAdded}
+                    aria-label={isAdded ? `${hit.ticker} added to watchlist` : `Add ${hit.ticker} to watchlist`}
+                    className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full text-muted-foreground transition-colors hover:bg-secondary hover:text-foreground disabled:opacity-60"
+                  >
+                    {isAdded ? (
+                      <Check className="h-[16px] w-[16px] text-green-500" />
+                    ) : (
+                      <Plus className="h-[16px] w-[16px]" />
+                    )}
+                  </button>
                 </div>
-                <span className="text-[11px] font-medium uppercase text-muted-foreground">
-                  {hit.exchange}
-                </span>
-              </button>
-            ))}
+              );
+            })}
         </div>
       </div>
     </div>

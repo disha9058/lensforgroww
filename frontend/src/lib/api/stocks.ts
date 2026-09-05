@@ -1,6 +1,5 @@
 import { request, USER_ID } from "./client";
 import type { DigestEntry, PricePoint, Range, Severity, Stock, StockStats } from "./types";
-
 interface WatchlistRow {
   id: string;
   user_id: string;
@@ -137,9 +136,30 @@ export const stocksApi = {
   },
 
   async getStock(ticker: string): Promise<Stock | undefined> {
-    const [name, rows] = await Promise.all([resolveName(ticker), fetchWatchlistRows()]);
+    const [name, rows, digestRows] = await Promise.all([
+      resolveName(ticker),
+      fetchWatchlistRows(),
+      request<DigestRow[]>(`/digest/${USER_ID}`).catch(() => [] as DigestRow[]),
+    ]);
+
     const match = rows.find((r) => r.ticker.toUpperCase() === ticker.toUpperCase());
-    return toStock({ ticker, name, watched: !!match, price: match?.price ?? 0 });
+    const now = new Date().toISOString();
+
+    const events: DigestEntry[] = digestRows
+      .filter((d) => d.ticker.toUpperCase() === ticker.toUpperCase())
+      .map((d, i) => ({
+        id: `${ticker}-${i}`,
+        ticker: d.ticker,
+        name,
+        reason: d.reason,
+        severity: SEVERITY_RANK[d.severity] ?? 1,
+        timestamp: now,
+      }));
+
+    return {
+      ...toStock({ ticker, name, watched: !!match, price: match?.price ?? 0 }),
+      events,
+    };
   },
 
   async getPriceHistory(_ticker: string, range: Range): Promise<PricePoint[]> {
