@@ -2,7 +2,6 @@ import { useEffect, useRef, useState } from "react";
 import { useNavigate } from "@tanstack/react-router";
 import { Search, X } from "lucide-react";
 import { searchStocks, type SearchHit } from "@/lib/api/stocks";
-import { TickerLogo } from "./TickerLogo";
 
 type Status = "idle" | "loading" | "done" | "error";
 
@@ -90,7 +89,6 @@ export function SearchOverlay({ onClose }: { onClose: () => void }) {
           {status === "loading" &&
             [0, 1, 2].map((i) => (
               <div key={i} className="flex items-center gap-4 border-b border-border py-4">
-                <div className="h-10 w-10 animate-pulse rounded-xl bg-secondary" />
                 <div className="flex-1 space-y-2">
                   <div className="h-3.5 w-20 animate-pulse rounded bg-secondary" />
                   <div className="h-3 w-40 animate-pulse rounded bg-secondary" />
@@ -118,7 +116,6 @@ export function SearchOverlay({ onClose }: { onClose: () => void }) {
                 onClick={() => openTicker(hit.ticker)}
                 className="flex w-full items-center gap-4 border-b border-border py-4 text-left transition-colors hover:bg-secondary/40"
               >
-                <TickerLogo ticker={hit.ticker} />
                 <div className="min-w-0 flex-1">
                   <div className="text-[15px] font-semibold tracking-tight">{hit.ticker}</div>
                   <p className="mt-0.5 truncate text-[13px] text-muted-foreground">{hit.name}</p>
