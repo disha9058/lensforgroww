@@ -6,6 +6,7 @@ interface WatchlistRow {
   user_id: string;
   ticker: string;
   added_at: string;
+  price?: number;
 }
 
 interface DigestRow {
@@ -47,11 +48,11 @@ const SEVERITY_RANK: Record<DigestRow["severity"], Severity> = {
 
 const DEFAULT_EXPLORE_QUERY = "inc";
 
-function toStock(partial: { ticker: string; name?: string; watched?: boolean }): Stock {
+function toStock(partial: { ticker: string; name?: string; watched?: boolean; price?: number }): Stock {
   return {
     ticker: partial.ticker,
     name: partial.name || partial.ticker,
-    price: 0,
+    price: partial.price ?? 0,
     dayChangePct: 0,
     weekChangePct: 0,
     monthChangePct: 0,
@@ -111,6 +112,7 @@ export const stocksApi = {
           ticker: row.ticker,
           name: await resolveName(row.ticker),
           watched: true,
+          price: row.price ?? 0,
         }),
       ),
     );
@@ -118,14 +120,16 @@ export const stocksApi = {
 
   async search(q: string): Promise<Stock[]> {
     const [hits, rows] = await Promise.all([searchHits(q), fetchWatchlistRows()]);
-    const watched = new Set(rows.map((r) => r.ticker.toUpperCase()));
-    return hits.map((hit) =>
-      toStock({
+    const priceByTicker = new Map(rows.map((r) => [r.ticker.toUpperCase(), r.price]));
+    return hits.map((hit) => {
+      const upper = hit.ticker.toUpperCase();
+      return toStock({
         ticker: hit.ticker,
         name: hit.name,
-        watched: watched.has(hit.ticker.toUpperCase()),
-      }),
-    );
+        watched: priceByTicker.has(upper),
+        price: priceByTicker.get(upper) ?? 0,
+      });
+    });
   },
 
   async listAll(): Promise<Stock[]> {
@@ -134,8 +138,8 @@ export const stocksApi = {
 
   async getStock(ticker: string): Promise<Stock | undefined> {
     const [name, rows] = await Promise.all([resolveName(ticker), fetchWatchlistRows()]);
-    const watched = rows.some((r) => r.ticker.toUpperCase() === ticker.toUpperCase());
-    return toStock({ ticker, name, watched });
+    const match = rows.find((r) => r.ticker.toUpperCase() === ticker.toUpperCase());
+    return toStock({ ticker, name, watched: !!match, price: match?.price ?? 0 });
   },
 
   async getPriceHistory(_ticker: string, range: Range): Promise<PricePoint[]> {

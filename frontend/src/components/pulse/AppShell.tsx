@@ -1,7 +1,6 @@
 import { Link } from "@tanstack/react-router";
 import { Search } from "lucide-react";
-import { useState, type ReactNode } from "react";
-import { SearchOverlay } from "./SearchOverlay";
+import type { ReactNode } from "react";
 
 const TABS = [
   { to: "/", label: "Watchlist" },
@@ -10,8 +9,6 @@ const TABS = [
 ] as const;
 
 export function AppShell({ children }: { children: ReactNode }) {
-  const [searchOpen, setSearchOpen] = useState(false);
-
   return (
     <div className="min-h-screen bg-background text-foreground">
       <header className="sticky top-0 z-20 border-b border-border bg-background/95 backdrop-blur">
@@ -35,7 +32,6 @@ export function AppShell({ children }: { children: ReactNode }) {
             <button
               type="button"
               aria-label="Search"
-              onClick={() => setSearchOpen(true)}
               className="flex h-9 w-9 items-center justify-center rounded-full text-muted-foreground transition-colors hover:bg-secondary hover:text-foreground"
             >
               <Search className="h-[18px] w-[18px]" />
@@ -63,8 +59,6 @@ export function AppShell({ children }: { children: ReactNode }) {
       </header>
 
       <main className="mx-auto max-w-3xl px-5 pb-20">{children}</main>
-
-      {searchOpen && <SearchOverlay onClose={() => setSearchOpen(false)} />}
     </div>
   );
 }
