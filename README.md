@@ -1,6 +1,6 @@
 # Lens — A watchlist that tells you what changed, not just what things cost
  
-**Live demo video:** [ADD YOUR VIDEO LINK HERE]
+**Live demo video:** https://www.loom.com/share/7a4419da11da43bda0092e85cd9fb711
  
 ---
 ## 100-word pitch
