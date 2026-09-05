@@ -3,6 +3,10 @@
 **Live demo video:** [ADD YOUR VIDEO LINK HERE]
  
 ---
+## 100-word pitch
+ 
+Lens is not a price tracker — it's a change detector. Every existing watchlist shows current state; none answer what a returning user actually wants to know: *did anything happen since I last looked, and does it matter?* I split that into two problems: a backend that owns and persists real market data on a schedule, and a diff engine that compares today's snapshot against each user's personal last-seen state, ranking movement by statistical significance rather than raw percentage. The result surfaces three or four things worth attention instead of a wall of numbers — simplification through judgment, not less data.
+ 
  
 ## The problem, as I actually understood it
  
