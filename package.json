@@ -1,0 +1,12 @@
+{
+  "name": "pulse-workspace",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "cd frontend && vite dev",
+    "build": "cd frontend && vite build",
+    "build:dev": "cd frontend && vite build --mode development",
+    "preview": "cd frontend && vite preview",
+    "lint": "cd frontend && eslint ."
+  }
+}
