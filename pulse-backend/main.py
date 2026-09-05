@@ -4,9 +4,9 @@ from fastapi.middleware.cors import CORSMiddleware
 from dotenv import load_dotenv
 import os
 import uuid
+import yfinance as yf
 from diff_engine import get_baseline_stats, compute_zscore, classify_event, generate_reason
 from ssl_setup import create_supabase_client
-# add this import at the top, alongside your other imports
 
 load_dotenv()
 sb = create_supabase_client()
@@ -20,10 +20,18 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# add this import at the top, alongside your other imports
-import yfinance as yf
 
-# add this new route anywhere among your existing routes
+def validate_uuid(user_id: str):
+    """user_id column is uuid type in Supabase — reject bad input early with a clean error."""
+    try:
+        uuid.UUID(user_id)
+    except ValueError:
+        raise HTTPException(
+            status_code=400,
+            detail=f"'{user_id}' is not a valid UUID. Generate one with: python3 -c \"import uuid; print(uuid.uuid4())\""
+        )
+
+
 @app.get("/search")
 def search_stocks(q: str):
     if not q or len(q.strip()) < 1:
@@ -47,15 +55,6 @@ def search_stocks(q: str):
         })
 
     return parsed
-def validate_uuid(user_id: str):
-    """user_id column is uuid type in Supabase — reject bad input early with a clean error."""
-    try:
-        uuid.UUID(user_id)
-    except ValueError:
-        raise HTTPException(
-            status_code=400,
-            detail=f"'{user_id}' is not a valid UUID. Generate one with: python3 -c \"import uuid; print(uuid.uuid4())\""
-        )
 
 
 @app.get("/watchlist/{user_id}")
@@ -92,6 +91,7 @@ def get_watchlist(user_id: str):
 
     return enriched
 
+
 @app.post("/watchlist/{user_id}")
 def add_ticker(user_id: str, ticker: str):
     validate_uuid(user_id)
@@ -110,6 +110,7 @@ def add_ticker(user_id: str, ticker: str):
         return result.data
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Failed to add ticker: {str(e)}")
+
 
 @app.get("/digest/{user_id}")
 def get_digest(user_id: str):
@@ -144,6 +145,10 @@ def get_digest(user_id: str):
             current_volume = snap[0]["volume"]
 
             baseline = get_baseline_stats(ticker)
+            if baseline is None:
+                print(f"⚠️ skipping {ticker}: insufficient history for baseline")
+                continue
+
             zscore = compute_zscore(current_price, baseline)
             severity, volume_ratio = classify_event(zscore, current_volume, baseline["avg_volume"])
             reason = generate_reason(ticker, zscore, volume_ratio)
@@ -163,13 +168,23 @@ def get_digest(user_id: str):
     severity_rank = {"significant": 0, "notable": 1, "minor": 2}
     events.sort(key=lambda e: severity_rank[e["severity"]])
     return events
+
+
 @app.post("/digest/{user_id}/mark-seen")
 def mark_seen(user_id: str):
     validate_uuid(user_id)
     watchlist = sb.table("watchlist_items").select("ticker").eq("user_id", user_id).execute().data
     for w in watchlist:
         ticker = w["ticker"]
-        latest_snap = sb.table("price_snapshots").select("id").eq("ticker", ticker).order("fetched_at", desc=True).limit(1).execute().data
+        latest_snap = (
+            sb.table("price_snapshots")
+            .select("id")
+            .eq("ticker", ticker)
+            .order("fetched_at", desc=True)
+            .limit(1)
+            .execute()
+            .data
+        )
         if latest_snap:
             sb.table("last_seen_snapshots").upsert({
                 "user_id": user_id,
